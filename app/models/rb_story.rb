@@ -6,10 +6,12 @@ class RbStory < Issue
     def self.condition(project_id, sprint_id, extras=[])
       if sprint_id.nil?  
         c = ["
-          project_id = ?
+          project_id IN (?,?)
           and tracker_id in (?)
           and fixed_version_id is NULL
-          and is_closed = ?", project_id, RbStory.trackers, false]
+          and is_closed = ?", project_id,
+        Project.find(project_id).descendants.active.collect { |p| p.id },
+        RbStory.trackers, false]
       else
         c = ["
           project_id = ?
